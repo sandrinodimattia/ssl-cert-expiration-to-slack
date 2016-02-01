@@ -1,9 +1,14 @@
+const nconf = require('nconf');
+nconf.argv()
+  .env()
+  .file({ file: './config.json' });
+
 const task = require('./task');
 const context = {
   data: {
-    DOMAINS: process.env.DOMAINS,
-    DAYS_THRESHOLD: process.env.DAYS_TRESHOLD || 90,
-    SLACK_INCOMING_WEBHOOK_URL: process.env.SLACK_INCOMING_WEBHOOK_URL
+    DOMAINS: nconf.get('DOMAINS'),
+    DAYS_THRESHOLD: nconf.get('DAYS_THRESHOLD'),
+    SLACK_INCOMING_WEBHOOK_URL: nconf.get('SLACK_INCOMING_WEBHOOK_URL')
   }
 };
 
