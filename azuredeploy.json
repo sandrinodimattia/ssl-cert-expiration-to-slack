@@ -95,7 +95,7 @@
       }
     },
     {
-      "apiVersion": "2015-08-01,
+      "apiVersion": "2015-08-01",
       "name": "[variables('deploySiteName')]",
       "type": "Microsoft.Web/sites",
       "location": "[parameters('siteLocation')]",
