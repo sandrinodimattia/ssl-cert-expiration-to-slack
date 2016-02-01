@@ -5,27 +5,59 @@
     "siteName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the Web App that you wish to create."
+        "description": "Name of Azure Web App"
       }
     },
-    "hostingPlanName": {
+    "appServicePlanName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the App Service plan to use for hosting the Web App."
+        "description": "Name of App Service Plan"
       }
     },
     "siteLocation": {
       "type": "string",
-      "defaultValue": "West US",
       "metadata": {
-        "description": "The location to use for creating the Web App and hosting plan."
+        "description": "Name of the Location"
+      }
+    },
+    "sku": {
+      "type": "string",
+      "allowedValues": [
+        "Free",
+        "Shared",
+        "Basic",
+        "Standard"
+      ],
+      "defaultValue": "Free",
+      "metadata": {
+        "description": "SKU value"
+      }
+    },
+    "workerSize": {
+      "type": "string",
+      "allowedValues": [
+        "0",
+        "1",
+        "2"
+      ],
+      "defaultValue": "0",
+      "metadata": {
+        "description": "Worker Size( 0=Small, 1=Medium, 2=Large )"
       }
     },
     "repoURL": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "https://github.com/sandrinodimattia/ssl-cert-expiration-to-slack.git",
+      "metadata": {
+        "description": "The URL for the GitHub repository that contains the project to deploy."
+      }
     },
     "branch": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "master",
+      "metadata": {
+        "description": "The branch of the GitHub repository to use."
+      }
     },
     "DOMAINS" : {
       "type": "string",
@@ -46,78 +78,66 @@
       }
     }
   },
+  "variables": {
+    "deploySiteName": "[parameters('siteName')]"
+  },
   "resources": [
     {
-      "apiVersion": "2015-08-01",
-      "name": "[parameters('hostingPlanName')]",
+      "apiVersion": "2015-04-01",
+      "name": "[parameters('appServicePlanName')]",
       "type": "Microsoft.Web/serverfarms",
       "location": "[parameters('siteLocation')]",
       "properties": {
-      },
-      "sku": {
-        "name": "F1"
+        "name": "[parameters('appServicePlanName')]",
+        "sku": "[parameters('sku')]",
+        "workerSize": "[parameters('workerSize')]",
+        "numberOfWorkers": 1
       }
     },
     {
-      "apiVersion": "2015-08-01",
-      "name": "[parameters('siteName')]",
+      "apiVersion": "2015-06-01",
+      "name": "[variables('deploySiteName')]",
       "type": "Microsoft.Web/sites",
       "location": "[parameters('siteLocation')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
+        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
       ],
       "properties": {
-        "serverFarmId": "[parameters('hostingPlanName')]"
+        "name": "[variables('deploySiteName')]",
+        "serverFarmId": "[parameters('appServicePlanName')]"
       },
       "resources": [
         {
-          "apiVersion": "2015-08-01",
-          "name": "web",
-          "type": "config",
-          "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
-          ],
-          "properties": {
-            "siteProperties": {
-              "webSocketsEnabled": true
-            }
-          }
-        },
-        {
-          "apiVersion": "2015-08-01",
-          "name": "appsettings",
-          "type": "config",
-          "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
-          ],
-          "properties": {
-            "DOMAINS": "[parameters('DOMAINS')]",
-            "DAYS_THRESHOLD": "[parameters('DAYS_THRESHOLD')]",
-            "SLACK_INCOMING_WEBHOOK_URL": "[parameters('SLACK_INCOMING_WEBHOOK_URL')]",
-            "WEBSITE_NODE_DEFAULT_VERSION": "5.3.0"
-          }
-        },
-        {
-          "apiVersion": "2015-08-01",
+          "apiVersion": "2015-04-01",
           "name": "web",
           "type": "sourcecontrols",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]",
-            "[concat('Microsoft.Web/Sites/', parameters('siteName'), '/config/web')]"
+            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
           ],
           "properties": {
             "RepoUrl": "[parameters('repoURL')]",
             "branch": "[parameters('branch')]",
             "IsManualIntegration": true
           }
+        },
+        {
+          "apiVersion": "2015-06-01",
+          "name": "web",
+          "type": "config",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('deploySiteName'))]"
+          ],
+          "properties": {
+            "phpVersion": "off",
+            "logsDirectorySizeLimit": 40,
+            "detailedErrorLoggingEnabled": true,
+            "DOMAINS": "[parameters('DOMAINS')]",
+            "DAYS_THRESHOLD": "[parameters('DAYS_THRESHOLD')]",
+            "SLACK_INCOMING_WEBHOOK_URL": "[parameters('SLACK_INCOMING_WEBHOOK_URL')]",
+            "WEBSITE_NODE_DEFAULT_VERSION": "5.3.0"
+          }
         }
       ]
     }
-  ],
-  "outputs": {
-     "siteUri": {
-       "type": "string",
-       "value": "[concat('https://',reference(resourceId('Microsoft.Web/sites', parameters('siteName'))).hostNames[0])]"
-     }
-  }
+  ]
 }
