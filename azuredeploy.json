@@ -1,117 +1,104 @@
 {
-  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "siteName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Web App that you wish to create."
+      }
     },
     "hostingPlanName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The name of the App Service plan to use for hosting the Web App."
+      }
     },
     "siteLocation": {
-      "type": "string"
-    },
-    "sku": {
       "type": "string",
-      "allowedValues": [
-        "Free",
-        "Shared",
-        "Basic",
-        "Standard"
-      ],
-      "defaultValue": "Free"
+      "defaultValue": "West US",
+      "metadata": {
+        "description": "The location to use for creating the Web App and hosting plan."
+      }
     },
-    "workerSize": {
-      "type": "string",
-      "allowedValues": [
-        "0",
-        "1",
-        "2"
-      ],
-      "defaultValue": "0"
-    },
-    "WEBSITE_NODE_DEFAULT_VERSION": {
-      "type": "string",
-      "defaultValue": "5.3.0"
-    },
-    "DOMAINS": {
-      "type": "string",
-      "defaultValue": "portal.azure.com;manage.windowsazure.com"
-    },
-    "DAYS_THRESHOLD": {
-      "type": "string",
-      "defaultValue": "90"
-    },
-    "SLACK_INCOMING_WEBHOOK_URL": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "repoUrl": {
+    "repoURL": {
       "type": "string"
     },
     "branch": {
       "type": "string"
+    },
+    "DOMAINS" : {
+      "type": "string",
+      "metadata": {
+        "description": "A list of domains you want to monitorg (eg: github.com;twitter.com;facebook.com)"
+      }
+    },
+    "DAYS_THRESHOLD" : {
+      "type": "string",
+      "metadata": {
+        "description": "If the certificate is valid for more than DAYS_THRESHOLD, nothing will be posted to Slack."
+      }
+    },
+    "SLACK_INCOMING_WEBHOOK_URL" : {
+      "type": "string",
+      "metadata": {
+        "description": "URL of your Incoming Webhook."
+      }
     }
   },
   "resources": [
     {
-      "apiVersion": "2014-06-01",
+      "apiVersion": "2015-08-01",
       "name": "[parameters('hostingPlanName')]",
-      "type": "Microsoft.Web/serverFarms",
+      "type": "Microsoft.Web/serverfarms",
       "location": "[parameters('siteLocation')]",
       "properties": {
-        "name": "[parameters('hostingPlanName')]",
-        "sku": "[parameters('sku')]",
-        "workerSize": "[parameters('workerSize')]",
-        "numberOfWorkers": 1
+      },
+      "sku": {
+        "name": "F1"
       }
     },
     {
-      "apiVersion": "2014-06-01",
+      "apiVersion": "2015-08-01",
       "name": "[parameters('siteName')]",
-      "type": "Microsoft.Web/Sites",
+      "type": "Microsoft.Web/sites",
       "location": "[parameters('siteLocation')]",
       "dependsOn": [
-        "[concat('Microsoft.Web/serverFarms/', parameters('hostingPlanName'))]"
+        "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
       ],
-      "tags": {
-        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "empty"
-      },
       "properties": {
-        "name": "[parameters('siteName')]",
-        "serverFarm": "[parameters('hostingPlanName')]"
+        "serverFarmId": "[parameters('hostingPlanName')]"
       },
       "resources": [
         {
-          "apiVersion": "2014-04-01",
-          "type": "config",
+          "apiVersion": "2015-08-01",
           "name": "web",
+          "type": "config",
           "dependsOn": [
-            "[concat('Microsoft.Web/Sites/', parameters('siteName'))]"
+            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
           ],
           "properties": {
-            "appSettings": [
-              {
-                "name": "WEBSITE_NODE_DEFAULT_VERSION",
-                "value": "[parameters('WEBSITE_NODE_DEFAULT_VERSION')]"
-              },
-              {
-                "name": "DAYS_THRESHOLD",
-                "value": "[parameters('DAYS_THRESHOLD')]"
-              },
-              {
-                "name": "DOMAINS",
-                "value": "[parameters('DOMAINS')]"
-              },
-              {
-                "name": "SLACK_INCOMING_WEBHOOK_URL",
-                "value": "[parameters('SLACK_INCOMING_WEBHOOK_URL')]"
-              }
-            ]
+            "siteProperties": {
+              "webSocketsEnabled": true
+            }
           }
         },
         {
-          "apiVersion": "2014-04-01",
+          "apiVersion": "2015-08-01",
+          "name": "appsettings",
+          "type": "config",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
+          ],
+          "properties": {
+            "DOMAINS": "[parameters('DOMAINS')]",
+            "DAYS_THRESHOLD": "[parameters('DAYS_THRESHOLD')]",
+            "SLACK_INCOMING_WEBHOOK_URL": "[parameters('SLACK_INCOMING_WEBHOOK_URL')]",
+            "WEBSITE_NODE_DEFAULT_VERSION": "5.3.0"
+          }
+        },
+        {
+          "apiVersion": "2015-08-01",
           "name": "web",
           "type": "sourcecontrols",
           "dependsOn": [
@@ -119,12 +106,18 @@
             "[concat('Microsoft.Web/Sites/', parameters('siteName'), '/config/web')]"
           ],
           "properties": {
-            "RepoUrl": "[parameters('repoUrl')]",
+            "RepoUrl": "[parameters('repoURL')]",
             "branch": "[parameters('branch')]",
             "IsManualIntegration": true
           }
         }
       ]
     }
-  ]
+  ],
+  "outputs": {
+     "siteUri": {
+       "type": "string",
+       "value": "[concat('https://',reference(resourceId('Microsoft.Web/sites', parameters('siteName'))).hostNames[0])]"
+     }
+  }
 }
