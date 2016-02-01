@@ -95,7 +95,7 @@
       }
     },
     {
-      "apiVersion": "2015-06-01",
+      "apiVersion": "2015-08-01,
       "name": "[variables('deploySiteName')]",
       "type": "Microsoft.Web/sites",
       "location": "[parameters('siteLocation')]",
@@ -108,11 +108,11 @@
       },
       "resources": [
         {
-          "apiVersion": "2015-04-01",
+          "apiVersion": "2015-08-01",
           "name": "web",
           "type": "sourcecontrols",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
+            "[resourceId('Microsoft.Web/Sites', variables('deploySiteName'))]"
           ],
           "properties": {
             "RepoUrl": "[parameters('repoURL')]",
@@ -132,19 +132,6 @@
             "DAYS_THRESHOLD": "[parameters('DAYS_THRESHOLD')]",
             "SLACK_INCOMING_WEBHOOK_URL": "[parameters('SLACK_INCOMING_WEBHOOK_URL')]",
             "WEBSITE_NODE_DEFAULT_VERSION": "5.3.0"
-          }
-        },
-        {
-          "apiVersion": "2015-06-01",
-          "name": "web",
-          "type": "config",
-          "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', variables('deploySiteName'))]"
-          ],
-          "properties": {
-            "phpVersion": "off",
-            "logsDirectorySizeLimit": 40,
-            "detailedErrorLoggingEnabled": true
           }
         }
       ]
