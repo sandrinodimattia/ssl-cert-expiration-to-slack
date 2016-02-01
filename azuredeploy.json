@@ -1,5 +1,5 @@
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "siteName": {
@@ -11,7 +11,7 @@
     "appServicePlanName": {
       "type": "string",
       "metadata": {
-        "description": "Name of App Service Plan"
+        "description": "Name of new or existing App Service Plan"
       }
     },
     "siteLocation": {
@@ -121,6 +121,20 @@
           }
         },
         {
+          "apiVersion": "2015-08-01",
+          "name": "appsettings",
+          "type": "config",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('deploySiteName'))]"
+          ],
+          "properties": {
+            "DOMAINS": "[parameters('DOMAINS')]",
+            "DAYS_THRESHOLD": "[parameters('DAYS_THRESHOLD')]",
+            "SLACK_INCOMING_WEBHOOK_URL": "[parameters('SLACK_INCOMING_WEBHOOK_URL')]",
+            "WEBSITE_NODE_DEFAULT_VERSION": "5.3.0"
+          }
+        },
+        {
           "apiVersion": "2015-06-01",
           "name": "web",
           "type": "config",
@@ -130,11 +144,7 @@
           "properties": {
             "phpVersion": "off",
             "logsDirectorySizeLimit": 40,
-            "detailedErrorLoggingEnabled": true,
-            "DOMAINS": "[parameters('DOMAINS')]",
-            "DAYS_THRESHOLD": "[parameters('DAYS_THRESHOLD')]",
-            "SLACK_INCOMING_WEBHOOK_URL": "[parameters('SLACK_INCOMING_WEBHOOK_URL')]",
-            "WEBSITE_NODE_DEFAULT_VERSION": "5.3.0"
+            "detailedErrorLoggingEnabled": true
           }
         }
       ]
