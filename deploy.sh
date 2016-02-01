@@ -44,10 +44,11 @@ if [[ ! -n "$NEXT_MANIFEST_PATH" ]]; then
 fi
 
 if [[ ! -n "$DEPLOYMENT_TARGET" ]]; then
-  DEPLOYMENT_TARGET=$ARTIFACTS/wwwroot/app_data/jobs/triggered/ssl-cert-expiration-to-slack
+  DEPLOYMENT_TARGET=$ARTIFACTS
 else
   KUDU_SERVICE=true
 fi
+DEPLOYMENT_TARGET=$DEPLOYMENT_TARGET/wwwroot/app_data/jobs/triggered/ssl-cert-expiration-to-slack
 
 if [[ ! -n "$KUDU_SYNC_CMD" ]]; then
   # Install kudu sync
