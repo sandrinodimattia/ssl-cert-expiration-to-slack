@@ -121,6 +121,20 @@
           }
         },
         {
+          "apiVersion": "2015-08-01",
+          "name": "appsettings",
+          "type": "config",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('deploySiteName'))]"
+          ],
+          "properties": {
+            "DOMAINS": "[parameters('DOMAINS')]",
+            "DAYS_THRESHOLD": "[parameters('DAYS_THRESHOLD')]",
+            "SLACK_INCOMING_WEBHOOK_URL": "[parameters('SLACK_INCOMING_WEBHOOK_URL')]",
+            "WEBSITE_NODE_DEFAULT_VERSION": "5.3.0"
+          }
+        },
+        {
           "apiVersion": "2015-06-01",
           "name": "web",
           "type": "config",
@@ -130,25 +144,7 @@
           "properties": {
             "phpVersion": "off",
             "logsDirectorySizeLimit": 40,
-            "detailedErrorLoggingEnabled": true,
-            "appSettings": [
-              {
-                "name": "WEBSITE_NODE_DEFAULT_VERSION",
-                "value": "5.3.0"
-      				},
-              {
-                "name": "DOMAINS",
-                "value": "[parameters('DOMAINS')]"
-      				},
-              {
-                "name": "DAYS_THRESHOLD",
-                "value": "[parameters('DAYS_THRESHOLD')]"
-      				},
-              {
-                "name": "SLACK_INCOMING_WEBHOOK_URL",
-                "value": "[parameters('SLACK_INCOMING_WEBHOOK_URL')]"
-      				}
-				    ]
+            "detailedErrorLoggingEnabled": true
           }
         }
       ]
