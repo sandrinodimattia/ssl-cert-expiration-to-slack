@@ -7,8 +7,8 @@ const moment = require('moment');
 const request = require('request');
 
 module.exports = (context, done) => {
-  let required_settings = ['DOMAINS', 'DAYS_THRESHOLD', 'SLACK_INCOMING_WEBHOOK_URL'];
-  let missing_settings = required_settings.filter((setting) => !context.data[setting]);
+  var required_settings = ['DOMAINS', 'DAYS_THRESHOLD', 'SLACK_INCOMING_WEBHOOK_URL'];
+  var missing_settings = required_settings.filter((setting) => !context.data[setting]);
   if (missing_settings.length) {
     return done({ message: 'Missing settings: ' + missing_settings.join(', ') });
   }
@@ -23,12 +23,14 @@ module.exports = (context, done) => {
           domain,
           valid_until,
           is_valid: valid_until.isAfter(moment()),
-          days_remaining: moment.duration(valid_until.diff(moment())).asDays()
+          days_remaining: Math.round(moment.duration(valid_until.diff(moment())).asDays())
         });
+      }).on('error', (err) => {
+        cb({ domain, message: err.message });
       }).end();
     }
     catch (e) {
-      cb({ message: e.message });
+      cb({ domain, message: e.message });
     }
   }
 
@@ -36,11 +38,11 @@ module.exports = (context, done) => {
     verifyCertificate(domain, (err, details) => {
       if (err) {
         console.log('Error verifying certificate:', err.message);
-        return cb(err);
+        return cb();
       }
 
       if (details.days_remaining > context.data.DAYS_THRESHOLD) {
-        console.log('Skipping', domain);
+        console.log(`Skipping ${domain} which expires in ${details.days_remaining} days`);
         return cb();
       }
 
@@ -63,7 +65,7 @@ module.exports = (context, done) => {
           'text': `Certificate check for: ${details.domain}`,
           'fields': [
             { 'title': 'Valid Until', 'value': details.valid_until, 'short': true },
-            { 'title': 'Days Remaining', 'value': Math.round(details.days_remaining), 'short': true }
+            { 'title': 'Days Remaining', 'value': details.days_remaining, 'short': true }
           ],
         }]
       };
@@ -71,10 +73,10 @@ module.exports = (context, done) => {
       request.post({ url: context.data.SLACK_INCOMING_WEBHOOK_URL, form: { payload: JSON.stringify(msg) } }, (err, res, body) => {
         if (err) {
           console.log('Error posting to Slack:', err.message);
-          return cb(err);
+          return cb();
         }
 
-        console.log('Slack message posted for:', domain);
+        console.log(`Slack message posted for ${domain} which expires in ${details.days_remaining} days`);
         cb();
       });
     });
