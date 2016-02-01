@@ -1,6 +1,6 @@
 # SSL Certificate Expiration to Slack Webtask
 
-This Webtask will verify the status of SSL certificate for one of more domains and post this to Slack. This is useful to monitor your own certificates but also certificates of external services yo uuse.
+This Webtask will verify the status of SSL certificate for one of more domains and post this to Slack. This is useful to monitor your own certificates but also certificates of external services you use.
 
 ## Configure Webtask
 
@@ -25,6 +25,8 @@ wt create https://raw.githubusercontent.com/sandrinodimattia/ssl-cert-expiration
     --secret SLACK_INCOMING_WEBHOOK_URL="https://hooks.slack.com/services/xxx"
 ```
 
+> If the certificate is valid for more than DAYS_THRESHOLD, nothing will be posted to Slack.
+
 If you want to run it on a schedule (run every day at 10 AM for example):
 
 ```
@@ -38,4 +40,4 @@ wt cron schedule \
     https://raw.githubusercontent.com/sandrinodimattia/ssl-cert-expiration-to-slack-webtask/master/task.js
 ```
 
-> If the certificate is valid for more than DAYS_THRESHOLD, nothing will be posted to Slack.
+> If you decide you want to monitor more domains over time just rerun the command to replace your current job.
