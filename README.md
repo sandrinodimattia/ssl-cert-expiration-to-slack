@@ -14,7 +14,13 @@ Verify the status of SSL certificate for one of more domains and post this to Sl
 
 [![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fsandrinodimattia%2Fssl-cert-expiration-to-slack%2Fmaster%2Fazuredeploy.json)
 
-Clicking this button will let you create a new Azure Web App with a triggered web job that runs once per day (you can modify this in the `settings.job` file using the SCM site, changes are immediately applied).
+Clicking this button will let you create a new Azure Web App with a triggered web job that runs once per day (you can modify the CRON schedule in the `settings.job` file using the SCM site, changes are immediately applied).
+
+This Resource Manager template will:
+
+ 1. Create the App Service Plan if it doesn't exist
+ 2. *Change* the App Service Plan to the SKU and WORKERSIZE you configure. So make sure you set values of your existing plan if you don't want any changes.
+ 3. Create a Web App with a Triggered Web Job
 
 ![Web Job](media/webjob.png)
 
