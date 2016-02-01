@@ -133,20 +133,20 @@
             "detailedErrorLoggingEnabled": true,
             "appSettings": [
               {
-                "Name": "WEBSITE_NODE_DEFAULT_VERSION",
-                "Value": "5.3.0"
+                "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                "value": "5.3.0"
       				},
               {
-                "Name": "DOMAINS",
-                "Value": "[parameters('DOMAINS')]"
+                "name": "DOMAINS",
+                "value": "[parameters('DOMAINS')]"
       				},
               {
-                "Name": "DAYS_THRESHOLD",
-                "Value": "[parameters('DAYS_THRESHOLD')]"
+                "name": "DAYS_THRESHOLD",
+                "value": "[parameters('DAYS_THRESHOLD')]"
       				},
               {
-                "Name": "SLACK_INCOMING_WEBHOOK_URL",
-                "Value": "[parameters('SLACK_INCOMING_WEBHOOK_URL')]"
+                "name": "SLACK_INCOMING_WEBHOOK_URL",
+                "value": "[parameters('SLACK_INCOMING_WEBHOOK_URL')]"
       				}
 				    ]
           }
