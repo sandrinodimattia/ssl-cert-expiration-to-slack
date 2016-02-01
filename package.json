@@ -1,0 +1,33 @@
+{
+  "name": "ssl-cert-expiration-to-slack",
+  "version": "1.0.0",
+  "description": "Verify the status of SSL certificate for one of more domains and post this to Slack.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": "5.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sandrinodimattia/ssl-cert-expiration-to-slack.git"
+  },
+  "keywords": [
+    "ssl",
+    "webtask",
+    "slack"
+  ],
+  "author": "Sandrino Di Mattia",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sandrinodimattia/ssl-cert-expiration-to-slack/issues"
+  },
+  "homepage": "https://github.com/sandrinodimattia/ssl-cert-expiration-to-slack#readme",
+  "dependencies": {
+    "async": "^1.5.2",
+    "https": "^1.0.0",
+    "moment": "^2.11.1",
+    "request": "^2.69.0"
+  }
+}
