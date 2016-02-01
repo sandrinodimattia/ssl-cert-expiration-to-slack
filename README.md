@@ -12,7 +12,7 @@ Verify the status of SSL certificate for one of more domains and post this to Sl
 
 ### Azure
 
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fsandrinodimattia%2Fssl-cert-expiration-to-slack%2Fmaster%2Fazuredeploy.json)
 
 Clicking this button will let you create a new Azure Web App with a triggered web job that runs once per day (you can modify this in the `settings.job` file using the SCM site, changes are immediately applied).
 
