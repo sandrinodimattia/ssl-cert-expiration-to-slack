@@ -1,5 +1,5 @@
 {
-  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "siteName": {
@@ -21,29 +21,24 @@
       }
     },
     "sku": {
-      "type": "string",
-      "allowedValues": [
-        "Free",
-        "Shared",
-        "Basic",
-        "Standard"
-      ],
-      "defaultValue": "Free",
-      "metadata": {
-        "description": "SKU value"
-      }
+        "type": "string",
+        "defaultValue": "Free",
+        "allowedValues": [
+            "Free",
+            "Basic",
+            "Standard",
+            "Premium"
+        ],
+        "metadata": {
+            "description": "The pricing tier for the App Service plan."
+        }
     },
-    "workerSize": {
-      "type": "string",
-      "allowedValues": [
-        "0",
-        "1",
-        "2"
-      ],
-      "defaultValue": "0",
-      "metadata": {
-        "description": "Worker Size( 0=Small, 1=Medium, 2=Large )"
-      }
+    "svcPlanSize": {
+        "defaultValue": "F1",
+        "type": "string",
+        "metadata": {
+            "description": "The instance size of the app."
+        }
     },
     "repoURL": {
       "type": "string",
@@ -82,16 +77,15 @@
     "deploySiteName": "[parameters('siteName')]"
   },
   "resources": [
-    {
+{
       "apiVersion": "2015-08-01",
       "name": "[parameters('appServicePlanName')]",
       "type": "Microsoft.Web/serverfarms",
-      "location": "[parameters('siteLocation')]",
-      "properties": {
-        "name": "[parameters('appServicePlanName')]",
-        "sku": "[parameters('sku')]",
-        "workerSize": "[parameters('workerSize')]",
-        "numberOfWorkers": 1
+      "location": "[parameters('siteLocation')]",        
+      "sku": {
+        "name": "[parameters('svcPlanSize')]",
+        "tier": "[parameters('sku')]",
+        "capacity": 1
       }
     },
     {
